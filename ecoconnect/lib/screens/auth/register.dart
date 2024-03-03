@@ -1,3 +1,6 @@
+import 'package:env_assignment/screens/auth/login.dart';
+import 'package:env_assignment/services/firebase_auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -8,6 +11,8 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final FirebaseAuthService _authService = FirebaseAuthService();
+
   TextEditingController _fullNameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _mobileController = TextEditingController();
@@ -22,10 +27,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: Text('Register'),
+        title: const Text('Register'),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -33,159 +38,179 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Full Name',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _fullNameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             // Email field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Email',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             // Mobile field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Mobile',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _mobileController,
                   keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             // NIC field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'NIC',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _nicController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             // Registration Username field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Username',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _regUsernameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             // Registration Password field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Password',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _regPasswordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
 
             // Confirm Password field
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   'Confirm Password',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 TextField(
                   controller: _confirmPasswordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 24.0),
+            const SizedBox(height: 24.0),
 
             // Register button
             ElevatedButton(
-              onPressed: () {
-                Future.delayed(Duration(seconds: 2), () {
-                  Navigator.pop(context);
-                });
+              onPressed: () async {
+                String email = _emailController.text.trim();
+                String password = _regPasswordController.text.trim();
+                String fullName = _fullNameController.text.trim();
+                String mobile = _mobileController.text.trim();
+                String nic = _nicController.text.trim();
+
+                if (email.isNotEmpty &&
+                    password.isNotEmpty &&
+                    fullName.isNotEmpty &&
+                    mobile.isNotEmpty &&
+                    nic.isNotEmpty) {
+                  User? user = await _authService.signUpWithEmailAndPassword(
+                      email, password, fullName, mobile, nic, 'public');
+
+                  if (user != null) {
+                    print('Registration successful: ${user.email}');
+                    Navigator.pop(context);
+                  } else {
+                    print('Registration failed');
+                  }
+                } else {
+                  print('All fields are required');
+                }
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
